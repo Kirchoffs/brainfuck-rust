@@ -29,7 +29,7 @@ impl From<u8> for Opcode {
 #[derive(Debug)]
 pub struct Code {
     pub instructions: Vec<Opcode>,
-    pub jumpTable: std::collections::HashMap<usize, usize>,
+    pub jump_table: std::collections::HashMap<usize, usize>,
 }
 
 impl Code {
@@ -48,20 +48,24 @@ impl Code {
         let instructions: Vec<Opcode> = 
             data.iter().filter(|x| dict.contains(x)).map(|x| Opcode::from(*x)).collect();
 
-        let mut jumpStack: Vec<usize> = Vec::new();
-        let mut jumpTable: std::collections::HashMap<usize, usize> = std::collections::HashMap::new();
+        let mut jump_stack: Vec<usize> = Vec::new();
+        let mut jump_table: std::collections::HashMap<usize, usize> = std::collections::HashMap::new();
         for (idx, instruction) in instructions.iter().enumerate() {
             if *instruction == Opcode::LB {
-                jumpStack.push(idx);
+                jump_stack.push(idx);
             }
 
             if *instruction == Opcode::RB {
-                let pair_idx = jumpStack.pop().ok_or("pop from empty list")?;
-                jumpTable.insert(idx, pair_idx);
-                jumpTable.insert(pair_idx, idx);
+                let pair_idx = jump_stack.pop().ok_or("pop from empty list")?;
+                jump_table.insert(idx, pair_idx);
+                jump_table.insert(pair_idx, idx);
             }
         }
         
-        Ok(Code { instructions, jumpTable })
+        Ok(Code { instructions, jump_table })
+    }
+
+    pub fn len(&self) -> usize {
+        return self.instructions.len();
     }
 }
