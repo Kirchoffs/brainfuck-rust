@@ -1,5 +1,5 @@
 #[derive(Debug, PartialEq)]
-pub enum Opcode {
+pub enum Opcode {   // Operation code
     SHR = 0x3E,     // >
     SHL = 0x3C,     // <
     ADD = 0x2B,     // +

@@ -11,7 +11,7 @@ From Wikipedia
 | -                      | `*ptr--;`                                             |
 | .                      | `putchar(*ptr);`                                      |
 | ,                      | `*ptr = getchar()`                                    |
-| [                      | `while (*pre) {`                                      |
+| [                      | `while (*ptr) {`                                      |
 | ]                      | `}`                                                   |
 
 
@@ -21,5 +21,6 @@ From Wikipedia
 or
 >> cargo build --release
 
->> cargo run -- resources/hello_world.bf
+>> cargo run --bin vanilla -- resources/hello_world.bf
+>> cargo run --bin ir -- resources/hello_world.bf
 ```

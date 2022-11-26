@@ -1,7 +1,6 @@
 mod opcode;
-
-use std::io::{Write, Read};
-use opcode::{Opcode, Code};
+mod ir;
+use std::io::{ Read, Write };
 
 struct Interpreter {
     stack: Vec<u8>
@@ -15,50 +14,55 @@ impl Interpreter {
     }
 
     fn run(&mut self, data: Vec<u8>) -> Result<(), Box<dyn std::error::Error>> {
-        let code = Code::from(data)?;
+        let opcode = opcode::Code::from(data)?;
+        let code = ir::Code::from(opcode.instructions)?;
         let code_len = code.len();
-        let mut pc = 0; // Program Counter
-        let mut sp = 0; // Stack Pointer
-
+        let (mut pc, mut sp) = (0, 0);
+        
         loop {
             if pc >= code_len {
                 break;
             }
 
             match code.instructions[pc] {
-                Opcode::SHR => {
-                    sp += 1;
-                    if sp == self.stack.len() {
-                        self.stack.push(0);
+                ir::IR::SHR(x) => {
+                    sp += x as usize;
+                    if sp >= self.stack.len() {
+                        let expand = sp - self.stack.len() + 1;
+                        for _ in 0 .. expand {
+                            self.stack.push(0);
+                        }
                     }
                 },
-                Opcode::SHL => {
-                    if sp != 0 {
-                        sp -= 1;
+                ir::IR::SHL(x) => {
+                    if sp <= x as usize {
+                        sp = 0;
+                    } else {
+                        sp = sp - x as usize;
                     }
                 },
-                Opcode::ADD => {
-                    self.stack[sp] = self.stack[sp].overflowing_add(1).0;
+                ir::IR::ADD(x) => {
+                    self.stack[sp] = self.stack[sp].overflowing_add(x).0;
                 },
-                Opcode::SUB => {
-                    self.stack[sp] = self.stack[sp].overflowing_sub(1).0;
+                ir::IR::SUB(x) => {
+                    self.stack[sp] = self.stack[sp].overflowing_sub(x).0;
                 },
-                Opcode::PUTCHAR => {
+                ir::IR::PUTCHAR => {
                     std::io::stdout().write_all(&[self.stack[sp]])?;
                 },
-                Opcode::GETCHAR => {
+                ir::IR::GETCHAR => {
                     let mut buf: Vec<u8> = vec![0; 1];
                     std::io::stdin().read_exact(&mut buf)?;
                     self.stack[sp] = buf[0];
                 },
-                Opcode::LB => {
+                ir::IR::JIZ(x) => {
                     if self.stack[sp] == 0x00 {
-                        pc = code.jump_table[&pc];
+                        pc = x as usize;
                     }
                 },
-                Opcode::RB => {
+                ir::IR::JNZ(x) => {
                     if self.stack[sp] != 0x00 {
-                        pc = code.jump_table[&pc];
+                        pc = x as usize;
                     }
                 }
             }
