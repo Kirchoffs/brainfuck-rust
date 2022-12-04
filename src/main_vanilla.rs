@@ -1,6 +1,6 @@
-mod opcode;
+use brainfuck_rust::opcode;
 
-use std::io::{ Write, Read };
+use std::io::{ Read, Write };
 
 struct Interpreter {
     stack: Vec<u8>

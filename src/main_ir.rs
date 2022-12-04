@@ -1,5 +1,5 @@
-mod opcode;
-mod ir;
+use brainfuck_rust::opcode;
+use brainfuck_rust::ir;
 use std::io::{ Read, Write };
 
 struct Interpreter {

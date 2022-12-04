@@ -1,4 +1,4 @@
-use crate::opcode::Opcode;
+use super::opcode;
 
 #[derive(Debug, PartialEq)]
 pub enum IR {
@@ -17,13 +17,13 @@ pub struct Code {
 }
 
 impl Code {
-    pub fn from(data: Vec<Opcode>) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn from(data: Vec<opcode::Opcode>) -> Result<Self, Box<dyn std::error::Error>> {
         let mut instructions: Vec<IR> = Vec::new();
 
         let mut jump_stack: Vec<u32> = Vec::new();
         for e in data {
             match e {
-                Opcode::SHR => {
+                opcode::Opcode::SHR => {
                     match instructions.last_mut() {
                         Some(IR::SHR(cnt)) => {
                             *cnt += 1;
@@ -33,7 +33,7 @@ impl Code {
                         }
                     }
                 },
-                Opcode::SHL => {
+                opcode::Opcode::SHL => {
                     match instructions.last_mut() {
                         Some(IR::SHL(cnt)) => {
                             *cnt += 1;
@@ -43,7 +43,7 @@ impl Code {
                         }
                     }
                 },
-                Opcode::ADD => {
+                opcode::Opcode::ADD => {
                     match instructions.last_mut() {
                         Some(IR::ADD(cnt)) => {
                             *cnt = cnt.overflowing_add(1).0;
@@ -53,7 +53,7 @@ impl Code {
                         }
                     }
                 },
-                Opcode::SUB => {
+                opcode::Opcode::SUB => {
                     match instructions.last_mut() {
                         Some(IR::ADD(cnt)) => {
                             *cnt = cnt.overflowing_add(1).0;
@@ -63,17 +63,17 @@ impl Code {
                         }
                     }
                 },
-                Opcode::PUTCHAR => {
+                opcode::Opcode::PUTCHAR => {
                     instructions.push(IR::PUTCHAR);
                 },
-                Opcode::GETCHAR => {
+                opcode::Opcode::GETCHAR => {
                     instructions.push(IR::GETCHAR);
                 },
-                Opcode::LB => {
+                opcode::Opcode::LB => {
                     instructions.push(IR::JIZ(0));
                     jump_stack.push((instructions.len() - 1) as u32);
                 },
-                Opcode::RB => {
+                opcode::Opcode::RB => {
                     let pair_idx = jump_stack.pop().ok_or("pop from empty list")?;
                     instructions.push(IR::JNZ(pair_idx));
                     let instruction_len = instructions.len();
