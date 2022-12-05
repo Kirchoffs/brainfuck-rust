@@ -16,6 +16,14 @@ From Wikipedia
 
 
 ## Run the code
+Install and use nightly version
+```
+>> rustup toolchain list
+>> rustup toolchain install nightly
+>> rustup default nightly
+```
+
+Run the code
 ```
 >> cargo build
 or
@@ -23,4 +31,7 @@ or
 
 >> cargo run --bin vanilla -- resources/hello_world.bf
 >> cargo run --bin ir -- resources/hello_world.bf
+>> cargo run --bin jit -- resources/hello_world.bf
+or
+>> cargo run --bin jit --release -- resources/mandelbrot.bf
 ```
